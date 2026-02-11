@@ -34,6 +34,12 @@ variable "subnets" {
       availability_zone = "sa-east-1a"
       type              = "public"
     }
+    # Adding new subnet
+    public-b = {
+      cidr_block        = "10.10.3.0/24"
+      availability_zone = "sa-east-1c"
+      type              = "public"
+    }
     private-a = {
       cidr_block        = "10.10.11.0/24"
       availability_zone = "sa-east-1a"
