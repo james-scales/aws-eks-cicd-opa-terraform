@@ -1,32 +1,21 @@
 name: Deploy to AWS (After Approval)
 
 on:
-  workflow_dispatch:   # Manual trigger
+  workflow_dispatch:
   push:
     branches:
       - main
       - james-updates
 
-
 jobs:
-  wait-for-approval:
-    name: Manual Approval Gate
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      ACTIONS_STEP_DEBUG: true
-    steps:
-      - name: Await Approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: james-scales
-          minimum-approvals: 1
-
   terraform-apply:
     name: Terraform Apply to AWS
-    needs: wait-for-approval
     runs-on: ubuntu-latest
+
+    # This triggers GitHub's native approval gate
+    environment:
+      name: production
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -49,7 +38,7 @@ jobs:
         run: terraform validate
         working-directory: ./
 
-      - name: Terraform Plan (for visibility)
+      - name: Terraform Plan
         run: terraform plan -out=tfplan
         working-directory: ./
 
