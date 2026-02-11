@@ -1,76 +1,13 @@
-# Public Subnets
-# These subnets have direct internet access via the internet gateway
+resource "aws_subnet" "subnets" {
+for_each = var.subnets
 
-
-resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.dev.id
-  cidr_block              = "10.10.1.0/24"
-  availability_zone       = "sa-east-1a"
-  map_public_ip_on_launch = true
-  
-  tags = {
-    Name = "dev-public-subnet-1"
-    Type = "Public"
-  }
-}
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
+  map_public_ip_on_launch = each.value.type == "public" ? true : false
 
-resource "aws_subnet" "public_2" {
-  vpc_id                  = aws_vpc.dev.id
-  cidr_block              = "10.10.2.0/24"
-  availability_zone       = "sa-east-1b"
-  map_public_ip_on_launch = true
-  
   tags = {
-    Name = "dev-public-subnet-2"
-    Type = "Public"
-  }
-}
-
-resource "aws_subnet" "public_3" {
-  vpc_id                  = aws_vpc.dev.id
-  cidr_block              = "10.10.3.0/24"
-  availability_zone       = "sa-east-1c"
-  map_public_ip_on_launch = true
-  
-  tags = {
-    Name = "dev-public-subnet-3"
-    Type = "Public"
-  }
-}
-
-# Private Subnets
-# These subnets do not have direct internet access
-# They can reach the internet through the NAT gateway
-
-resource "aws_subnet" "private_1" {
-  vpc_id            = aws_vpc.dev.id
-  cidr_block        = "10.10.11.0/24"
-  availability_zone = "sa-east-1a"
-  
-  tags = {
-    Name = "dev-private-subnet-1"
-    Type = "Private"
-  }
-}
-
-resource "aws_subnet" "private_2" {
-  vpc_id            = aws_vpc.dev.id
-  cidr_block        = "10.10.12.0/24"
-  availability_zone = "sa-east-1b"
-  
-  tags = {
-    Name = "dev-private-subnet-2"
-    Type = "Private"
-  }
-}
-
-resource "aws_subnet" "private_3" {
-  vpc_id            = aws_vpc.dev.id
-  cidr_block        = "10.10.13.0/24"
-  availability_zone = "sa-east-1c"
-  
-  tags = {
-    Name = "dev-private-subnet-3"
-    Type = "Private"
+    Name = "${local.name_prefix}-${each.value.type}-subnet"
+    Type = each.value.type
   }
 }

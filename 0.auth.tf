@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "sa-east-1"
+  region = var.region
 }
 
 terraform {
@@ -8,5 +8,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+  }
+  backend "s3" {
+    bucket = "scales-tfstate-bucket"
+    key    = "path/terraform.tfstate"
+    region = "sa-east-1"
   }
 }
