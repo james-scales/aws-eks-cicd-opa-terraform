@@ -28,4 +28,23 @@ variable "subnets" {
     availability_zone = string
     type              = string # "public" or "private"
   }))
+  default = {
+    subnets = {
+  public-a = {
+    cidr_block        = "10.10.2.0/24"
+    availability_zone = "sa-east-1a"
+    type              = "public"
+  }
+  private-a = {
+    cidr_block        = "10.10.11.0/24"
+    availability_zone = "sa-east-1a"
+    type              = "private"
+  }
+  private-b = {
+    cidr_block        = "10.10.12.0/24"
+    availability_zone = "sa-east-1b"
+    type              = "private"
+  }
+}
+  }
 }
