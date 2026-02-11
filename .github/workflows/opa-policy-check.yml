@@ -11,6 +11,7 @@ on:
       - main
       - develop
       - test-opa-policy
+      - james-updates
 
 jobs:
   opa-policy-validation:
