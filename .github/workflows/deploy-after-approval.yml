@@ -12,8 +12,9 @@ jobs:
   wait-for-approval:
     name: Manual Approval Gate
     runs-on: ubuntu-latest
-    environment: 
-      name: production
+    environment: production
+    env:
+      ACTIONS_STEP_DEBUG: true
     steps:
       - name: Await Approval
         uses: trstringer/manual-approval@v1
