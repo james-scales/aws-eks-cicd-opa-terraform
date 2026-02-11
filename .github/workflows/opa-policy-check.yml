@@ -10,6 +10,7 @@ on:
     branches:
       - main
       - develop
+      - test-opa-policy
 
 jobs:
   opa-policy-validation:
