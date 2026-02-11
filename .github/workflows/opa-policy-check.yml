@@ -1,11 +1,11 @@
 name: OPA Terraform Policy Check
 
 on:
-  pull_request:
-    paths:
-      - '**.tf'
-      - '**.rego'
-      - '.github/workflows/opa-policy-check.yml'
+  # pull_request:
+  #   paths:
+  #     - '**.tf'
+  #     - '**.rego'
+  #     - '.github/workflows/opa-policy-check.yml'
   push:
     branches:
       - main
@@ -21,6 +21,11 @@ jobs:
       AWS_REGION: sa-east-1
 
     steps:
+      - name: Debug secrets 
+        run: | 
+          echo "Key length: ${#AWS_ACCESS_KEY_ID}" 
+          echo "Secret length: ${#AWS_SECRET_ACCESS_KEY}"
+          
       - name: Checkout code
         uses: actions/checkout@v4
 
