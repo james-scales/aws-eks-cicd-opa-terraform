@@ -1,15 +1,16 @@
 name: OPA Terraform Policy Check
 
 on:
-  pull_request:
-    paths:
-      - '**.tf'
-      - '**.rego'
-      - '.github/workflows/opa-policy-check.yml'
+  # pull_request:
+  #   paths:
+  #     - '**.tf'
+  #     - '**.rego'
+  #     - '.github/workflows/opa-policy-check.yml'
   push:
     branches:
       - main
       - develop
+      - test-opa-policy
 
 jobs:
   opa-policy-validation:
