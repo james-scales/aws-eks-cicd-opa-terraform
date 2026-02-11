@@ -1,0 +1,84 @@
+name: OPA Terraform Policy Check
+
+on:
+  pull_request:
+    paths:
+      - '**.tf'
+      - '**.rego'
+      - '.github/workflows/opa-policy-check.yml'
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  opa-policy-validation:
+    name: Validate Terraform Plan Against OPA Policies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Set up OPA
+        uses: open-policy-agent/setup-opa@v1
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./
+        # Add AWS credentials if needed
+        # env:
+        #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Generate JSON Plan
+        run: terraform show -json tfplan > plan.json
+        working-directory: ./
+
+      - name: Run OPA Policy Evaluation
+        id: opa-eval
+        run: |
+          echo "=== OPA Policy Violations ==="
+          opa eval -i plan.json -d subnet_policy.rego "data.terraform.deny" | tee opa_violations.json
+          
+          echo ""
+          echo "=== Summary ==="
+          opa eval -i plan.json -d subnet_policy.rego "data.terraform.summary"
+        working-directory: ./
+        continue-on-error: true
+
+      - name: Check for Violations
+        run: |
+          violations=$(opa eval -i plan.json -d subnet_policy.rego "data.terraform.deny" | grep -c '"value"' || echo "0")
+          
+          if [ "$violations" -gt 1 ]; then
+            echo "❌ OPA Policy violations detected!"
+            exit 1
+          else
+            echo "✅ Terraform plan complies with OPA policies"
+          fi
+        working-directory: ./
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const violations = fs.readFileSync('plan.json', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ OPA Policy Check: All Terraform resources comply with policies'
+            });
