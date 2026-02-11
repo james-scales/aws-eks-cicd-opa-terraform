@@ -5,7 +5,7 @@ import rego.v1
 # Evaluate Terraform plan JSON lines format
 # Extracts the plan object and evaluates subnet policies
 
-# Policy: All aws_subnet resources must use availability_zone = "sa-east-1b"
+# Policy: All aws_subnet resources must use AWS_REGION = "sa-east-1"
 deny[msg] if {
     # Find resource_changes that contain aws_subnet resources
     change := input.resource_changes[_]
@@ -13,11 +13,11 @@ deny[msg] if {
     
     # Get the resource configuration (after attribute)
     config := change.change.after
-    config.availability_zone != "sa-east-1b"
+    config.region != "sa-east-1"
     
     msg := sprintf(
-        "Subnet resource '%s' has invalid availability_zone '%s'. Must be 'sa-east-1b'",
-        [change.address, config.availability_zone]
+        "Subnet resource '%s' is not in correct region '%s'. Must be 'sa-east-1'",
+        [change.address, config.region]
     )
 }
 
@@ -28,11 +28,11 @@ deny_changes[msg] if {
     change.change.actions[_] != "no-op"  # Only flag if creating or updating
     
     config := change.change.after
-    config.availability_zone != "sa-east-1b"
+    config.region != "sa-east-1"
     
     msg := sprintf(
-        "Subnet '%s' change violates policy: availability_zone must be 'sa-east-1b' (got '%s')",
-        [change.address, config.availability_zone]
+        "Subnet '%s' change violates policy: region must be 'sa-east-1' (got '%s')",
+        [change.address, config.region]
     )
 }
 
