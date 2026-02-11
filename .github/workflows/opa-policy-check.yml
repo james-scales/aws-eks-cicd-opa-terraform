@@ -15,6 +15,10 @@ jobs:
   opa-policy-validation:
     name: Validate Terraform Plan Against OPA Policies
     runs-on: ubuntu-latest
+    env: 
+      AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }} 
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS }} 
+      AWS_REGION: sa-east-1
 
     steps:
       - name: Checkout code
@@ -35,10 +39,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         working-directory: ./
-        # Add AWS credentials if needed
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS }}
 
       - name: Generate JSON Plan
         run: terraform show -json tfplan > plan.json
